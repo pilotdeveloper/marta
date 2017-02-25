@@ -8,6 +8,9 @@
 #include <SPI.h>
 #include "RF24.h"
 
+
+int MAX_PEOPLE = 10;
+
 byte addresses[][6] = {"1Node","2Node"};
 
 /****************** User Config ***************************/
@@ -23,7 +26,9 @@ struct dataStruct{
   unsigned char state;
 }CountData;
 
-unsigned char buff[8];
+unsigned const char buff[100];
+
+//unsigned const char buff2[15];
 
 // based on an orginal sketch by Arduino forum member "danigom"
 // http://forum.arduino.cc/index.php?action=profile;u=188950
@@ -84,23 +89,31 @@ void loop() {
       while (radio.available()) {                          // While there is data ready
         radio.read( &CountData, sizeof(CountData) );             // Get the payload
       }
-     
-      radio.stopListening();                               // First, stop listening so we can talk  
-     
-      Serial.print(F("Received Data..."));
-      Serial.print(CountData._micros);  
-      Serial.print(" : ");
-      Serial.println(CountData.state,DEC);
-
-      
-
-      radio.startListening();
    }
-if(CountData.state<10){
-  scrollMessage(scrollText1);
-}else{
-  scrollMessage(scrollText2);
+
+
+//hardcode a min of 6
+if(CountData.state<6){
+  CountData.state=6;
 }
+
+if(CountData.state<MAX_PEOPLE){
+  sprintf(buff,"Open:%d/%d  \0",CountData.state,MAX_PEOPLE);
+  
+  //scrollMessage(scrollText1);
+  
+}else{
+  sprintf(buff,"Full:%d/%d  \0",CountData.state,MAX_PEOPLE);
+  //scrollMessage(scrollText2);
+}
+
+//
+//trcpy(
+scrollMessage(buff);
+
+Serial.write((char*)buff);
+Serial.println();
+
 } // Loop
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -972,22 +985,43 @@ unsigned char const font5x7 [] PROGMEM = {      //Numeric Font Matrix (Arranged 
 };
 
 // Scroll Message
-void scrollMessage(unsigned char * messageString) {
-    int counter = 0;
-    int myChar=0;
-    do {
-        // read back a char 
-        myChar =  pgm_read_byte_near(messageString + counter); 
-        if (myChar != 0){
-            loadBufferLong(myChar);
-        }
+void scrollMessage(char * messageString) {
+
+  //Serial.println(F("disp:"));
+        //Serial.write(messageString);
+        //Serial.println();
+
+     //Serial.println(strlen(messageString),DEC);
+
+
+
+    for(int i=0;i<strlen(messageString);++i){
+      //Serial.print(messageString[i]);
+      loadBufferLong(messageString[i]);
+    }
+     
+    /*int counter = 0;
+    //int myChar=0;
+    int myChar;
+    while (messageString[counter] != 0){
+        // read back a char
+        myChar = messageString[counter]; 
+        /*
+        myChar =  pgm_read_byte_near(messageString + counter); */
+        /*loadBufferLong(myChar);
+        
+        Serial.print(counter,DEC);
+        Serial.print('>');
+        Serial.print(myChar);
+        
         counter++;
-    } 
-    while (myChar != 0);
+    } */
+    
+    Serial.println();
 }
 
 // Load character into scroll buffer
-void loadBufferLong(int ascii){
+void loadBufferLong(char ascii){
     if (ascii >= 0x20 && ascii <=0x7f){
         for (int a=0;a<7;a++){                      // Loop 7 times for a 5x7 font
             unsigned long c = pgm_read_byte_near(font5x7 + ((ascii - 0x20) * 8) + a);     // Index into character table to get row data

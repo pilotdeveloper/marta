@@ -55,7 +55,7 @@ void loop() {
       CountData.state = Serial.read();
    }
 
-    CountData.state=3;
+    CountData.state=11;
   
 
     CountData._micros = micros();
