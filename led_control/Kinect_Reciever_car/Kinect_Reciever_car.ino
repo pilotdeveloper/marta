@@ -92,18 +92,14 @@ void loop() {
    }
 
 
-//hardcode a min of 6
-if(CountData.state<0){
-  CountData.state=0;
-}
 
 if(CountData.state<MAX_PEOPLE){
-  sprintf(buff,"Open:%d/%d  \0",CountData.state,MAX_PEOPLE);
+  sprintf(buff,"%d Spaces Available  \0",MAX_PEOPLE-CountData.state);
   
   //scrollMessage(scrollText1);
   
 }else{
-  sprintf(buff,"Full:%d/%d  \0",CountData.state,MAX_PEOPLE);
+  sprintf(buff,"Full \0");
   //scrollMessage(scrollText2);
 }
 

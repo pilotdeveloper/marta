@@ -48,11 +48,23 @@ void setup() {
 
 
 
+char in_c;
 
 void loop() {
 
    if(Serial.available()){
-      CountData.state = Serial.read();
+      in_c = Serial.read();
+      if(in_c=='q'){
+        if(CountData.state<=1){
+          CountData.state = 0;
+          
+        }else{
+          CountData.state--;
+        }
+      }else if(in_c=='w'){
+        CountData.state++;
+      }
+      Serial.println(CountData.state,DEC);
    }
 
     //CountData.state=11;
