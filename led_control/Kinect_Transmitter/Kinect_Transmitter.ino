@@ -20,7 +20,8 @@ RF24 radio(9,10);
 
 struct dataStruct{
   unsigned long _micros;
-  unsigned char state;
+  unsigned char state [50];
+  //String message;
 }CountData;
 
 void setup() {
@@ -41,7 +42,7 @@ void setup() {
     radio.openReadingPipe(1,addresses[1]);
   }
   
-  CountData.state = 0;
+  //CountData.state = 11;
   // Start the radio for sending data
   radio.stopListening();                                    // First, stop listening so we can talk.
 }
@@ -52,11 +53,13 @@ void setup() {
 void loop() {
 
    if(Serial.available()){
-      CountData.state = Serial.read();
+       Serial.readString().toCharArray(CountData.state, 50);
+       //CountData.state =
+      Serial.write((char*)CountData.state);
    }
 
     //CountData.state=11;
-  
+    //CountData.state = "test";
 
     CountData._micros = micros();
     radio.write( &CountData, sizeof(CountData) );

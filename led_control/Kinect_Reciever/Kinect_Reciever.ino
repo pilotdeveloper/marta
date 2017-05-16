@@ -23,7 +23,8 @@ RF24 radio(9,10);
 
 struct dataStruct{
   unsigned long _micros;
-  unsigned char state;
+  unsigned char state [50];
+  String message;
 }CountData;
 
 unsigned const char buff[100];
@@ -37,7 +38,7 @@ unsigned const char buff[100];
 #include <LedControl.h>
 
 const int numDevices = 4;      // number of MAX7219s used
-const long scrollDelay = 75;   // adjust scrolling speed
+const long scrollDelay = 50;   // adjust scrolling speed
 
 unsigned long bufferLong [14] = {0}; 
 
@@ -53,7 +54,7 @@ void setup() {
 
   for (int x=0; x<numDevices; x++){
         lc.shutdown(x,false);       //The MAX72XX is in power-saving mode on startup
-        lc.setIntensity(x,0);       // Set the brightness to default value
+        lc.setIntensity(x,15);       // Set the brightness to default value
         lc.clearDisplay(x);         // and clear the display
   }
 
@@ -76,10 +77,11 @@ void setup() {
     radio.openReadingPipe(1,addresses[1]);
   }
   
-  CountData.state = 0;
+  //CountData.state = 0;
   // Start the radio for receiving data
   radio.startListening();
-  sprintf(buff,"%d",CountData.state);
+  //sprintf(buff,"%s",CountData.message);
+//  Serial.print(buff);
 }
 
 void loop() {
@@ -93,26 +95,39 @@ void loop() {
 
 
 //hardcode a min of 6
-if(CountData.state<0){
-  CountData.state=0;
-}
+//if(CountData.state<0){
+  //CountData.state=0;
+  //CountData.message="error";
+//}
+//if (CountData.message == NULL)
+ // return;
 
-if(CountData.state<MAX_PEOPLE){
-  sprintf(buff,"Open:%d/%d  \0",CountData.state,MAX_PEOPLE);
-  
+Serial.print(CountData.message);
+//if(CountData.state<MAX_PEOPLE){
+  sprintf(buff,"%s \0",CountData.state);
+    //(sprintfbuff,"%s\0",CountData.message.toCharArray());
+  //(CountData.message).toCharArray(buff, CountData.state.length()+1);
+  //Serial.print("Got One");
+  //Serial.write((char*)CountData.state);
+ 
   //scrollMessage(scrollText1);
   
-}else{
-  sprintf(buff,"Full:%d/%d  \0",CountData.state,MAX_PEOPLE);
-  //scrollMessage(scrollText2);
-}
+//}else{
+  //sprintf(buff,"Full:%d/%d  \0",CountData.state,MAX_PEOPLE);
+ // (CountData.message).toCharArray(buff, 100);
+  //Serial.print("Got Two");
+ // Serial.println(CountData.message);
+  //  sprintf(buff,"%s\0",CountData.message.toCharArray());
+
+//scrollMessage(scrollText2);
+//}
 
 //
 //trcpy(
 scrollMessage(buff);
 
-Serial.write((char*)buff);
-Serial.println();
+//Serial.write((char*)buff);
+//Serial.println();
 
 } // Loop
 
@@ -999,6 +1014,7 @@ void scrollMessage(char * messageString) {
       //Serial.print(messageString[i]);
       loadBufferLong(messageString[i]);
     }
+
      
     /*int counter = 0;
     //int myChar=0;
